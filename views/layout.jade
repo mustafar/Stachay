@@ -1,0 +1,37 @@
+!!!5
+html
+  head
+    title #{title}
+
+    //- custom fonts
+    //link(rel='stylesheet', href='http://fonts.googleapis.com/css?family=Bangers')
+
+    //-  base stylesheet
+    link(rel='stylesheet', href='/stylesheets/style.css')
+
+    //- jquery
+    script(src='/javascripts/jquery-1.9.1.min.js')
+
+    //- js, yo
+    script(src='/javascripts/ccv.js')
+    script(src='/javascripts/face.js')
+
+  body
+    header
+      h1
+        div.page-logo
+          a(href="/")
+            img.logo-img(src='https://dl.dropbox.com/s/d18xkcwnaql2liv/kitteh_logo.png')
+        div.page-title
+          a(href="/", style="padding: 0 15px 0 5px") #{title}
+        div.div-break
+    .container
+      block content
+    footer
+      div.social-container
+        a(href="http://twitter.com/mustafarizvi", target="_blank")
+          div.social-logo.twitter-logo
+        a(href="http://instagram.com/mustafarizvi", target="_blank")
+          div.social-logo.instagram-logo
+      div.div-break
+
