@@ -3,31 +3,71 @@ extends layout
 block content
 
   #mainContent
-    video(id="video", height="426", width="640", controls="false", autoplay)
+    video(id="video", height="426", width="640", controls="false")
     canvas(id="canvas", height="426", width="640")
 
   script (type='text/javascript')
 
     $(document).ready(function () {
       // Grab elements, create settings, etc.
-      var canvas = $("#canvas")[0],
-        context = canvas.getContext("2d"),
+      canvas = $("#canvas")[0],
         video = $("#video")[0],
         videoObj = { "video": true },
         errBack = function(error) {
           console.log("Video capture error: ", error.code); 
+        },
+        stacheIt = function(video, canvas) {
+          if(video.paused || video.ended) {
+            return false;
+          }
+          console.log("here");
+
+          var context = canvas.getContext("2d");
+
+          // Draw the video to canvas
+          context.drawImage(
+            video, 0, 0, video.width, video.height, 
+            0, 0, canvas.width, canvas.height);
+
+          // use the face detection library to find the face
+          var comp = ccv.detect_objects({
+            "canvas" : (ccv.pre(canvas)),
+            "cascade" : cascade,
+            "interval" : 5,
+            "min_neighbors" : 1
+          });
+
+          console.log(comp);
+          // stache 'em
+          var stache = new Image();
+          stache.src = '/img/glasses.png';
+          if (comp.length > 0) {
+            console.log(context);
+            context.drawImage(stache, comp[0].x, comp[0].y,comp[0].width, comp[0].height);
+          }
+
+          // re-stache
+          setTimeout(stacheIt, 20, video, canvas);
         };
 
       // Put video listeners into place
       if(navigator.getUserMedia) { // Standard
         navigator.getUserMedia(videoObj, function(stream) {
           video.src = stream;
-          video.play();
         }, errBack);
       } else if(navigator.webkitGetUserMedia) { // WebKit-prefixed
         navigator.webkitGetUserMedia(videoObj, function(stream){
           video.src = window.webkitURL.createObjectURL(stream);
-          video.play();
         }, errBack);
       }
+
+      video.addEventListener('playing', function() {
+          vidInterval = setInterval(stacheIt(video, canvas), 200); 
+      });
+       
+      video.addEventListener('ended', function() {
+          clearInterval(vidInterval);
+          time_dump.innerHTML = "finished";
+      });
+
     });
